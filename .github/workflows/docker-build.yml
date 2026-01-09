@@ -30,7 +30,7 @@ jobs:
           # Get changed files compared to main
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
 
-          # Extract top-level directories
+          # Extract top-level dirs
           CANDIDATES=$(echo "$CHANGED_FILES" \
             | awk -F/ 'NF > 1 { print $1 }' \
             | sort -u)
@@ -38,17 +38,23 @@ jobs:
           TOOLS=()
 
           for dir in $CANDIDATES; do
-            if [[ -d "$dir" ]] && \
-              [[ -f "$dir/Dockerfile" ]] && \
-              [[ -f "$dir/image.env" ]]; then
-              TOOLS+=("$dir")
+            # Trim leading/trailing whitespace
+            dir_clean=$(echo "$dir" | xargs)
+
+            if [[ -d "$dir_clean" ]] && \
+              [[ -f "$dir_clean/Dockerfile" ]] && \
+              [[ -f "$dir_clean/image.env" ]]; then
+              TOOLS+=("$dir_clean")
             fi
           done
 
           if [ "${#TOOLS[@]}" -eq 0 ]; then
             echo "tools=[]" >> "$GITHUB_OUTPUT"
           else
+            # Make JSON safely
             TOOLS_JSON=$(printf '%s\n' "${TOOLS[@]}" | jq -R . | jq -s .)
+
+            # No leading/trailing spaces
             echo "tools=$TOOLS_JSON" >> "$GITHUB_OUTPUT"
           fi
 
