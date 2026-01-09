@@ -52,7 +52,7 @@ jobs:
             echo "tools=[]" >> "$GITHUB_OUTPUT"
           else
             # Make JSON safely
-            TOOLS_JSON=$(printf '%s\n' "${TOOLS[@]}" | jq -R . | jq -s .)
+            TOOLS_JSON=$(printf '%s\n' "${TOOLS[@]}" | jq -R . | jq -s . | tr -d '\n')
 
             # No leading/trailing spaces
             echo "tools=$TOOLS_JSON" >> "$GITHUB_OUTPUT"
