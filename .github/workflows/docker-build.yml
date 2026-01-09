@@ -27,8 +27,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Get changed files compared to main
-          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+          # Get changed files in this commit
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            # PR: diff against main
+            CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+          else
+            # Merge to main: diff from this commit only
+            CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r $GITHUB_SHA)
+          fi
 
           # Extract top-level dirs
           CANDIDATES=$(echo "$CHANGED_FILES" \
