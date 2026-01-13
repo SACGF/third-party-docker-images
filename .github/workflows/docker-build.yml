@@ -111,3 +111,7 @@ jobs:
           file: ${{ matrix.tool }}/Dockerfile
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ matrix.tool }}
+            org.opencontainers.image.url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ matrix.tool }}
+            org.opencontainers.image.documentation=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/${{ matrix.tool }}
