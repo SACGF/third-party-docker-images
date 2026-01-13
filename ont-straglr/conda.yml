@@ -1,6 +1,5 @@
 name: straglr
 channels:
-  - defaults
   - bioconda
   - conda-forge
 dependencies:
@@ -14,3 +13,4 @@ dependencies:
   - trf=4.09.1
   - blast=2.5.0
   - git
+  - bcftools=1.22
