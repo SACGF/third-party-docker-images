@@ -112,6 +112,6 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ gitub.repository }}/${{ matrix.tool }}
-            org.opencontainers.image.url=${{ github.server_url }}/${{ gitub.repository }}/${{ matrix.tool }}
-            org.opencontainers.image.documentation=${{ github.server_url }}/${{ gitub.repository }}/${{ matrix.tool }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}/${{ matrix.tool }}
+            org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}/${{ matrix.tool }}
+            org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/${{ matrix.tool }}
