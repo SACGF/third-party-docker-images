@@ -9,5 +9,5 @@ RUN apt-get update && apt-get -y install \
 
 ARG REPO_TAG=905809435a6bb00aa413a4cf4d4424365112a0af
 
-RUN pip install numpy<2
+RUN pip install "numpy<2"
 RUN pip install git+https://github.com/fritzsedlazeck/Spectre.git@${REPO_TAG}
