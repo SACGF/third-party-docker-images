@@ -72,8 +72,11 @@ RUN pip install --no-cache-dir uv && \
       torchmetrics
 
 # Clair3 source tree
+WORKDIR /
 RUN wget https://github.com/HKU-BAL/Clair3/archive/refs/tags/v2.0.0.tar.gz \
-    && tar -xvzf v2.0.0.tar.gz -C /opt/bin
+    && tar -xvzf v2.0.0.tar.gz \
+    && mv Clair3-2.0.0 /opt/bin
+WORKDIR /opt/bin
 
 # Build Clair3 native components.
 RUN make PREFIX=${CONDA_PREFIX} PYTHON=${CONDA_PREFIX}/bin/python && \
