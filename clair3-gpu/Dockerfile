@@ -28,6 +28,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bash /tmp/miniforge.sh -b -p /opt/conda && \
     rm /tmp/miniforge.sh
 
+# Install newer GLIBC
+RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+    apt-get update && apt-get install -y g++-11
+
 ENV PATH=/opt/conda/bin:${PATH}
 
 # Step 1 in README: create a conda env with bioinformatics/build dependencies.
