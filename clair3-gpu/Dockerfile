@@ -21,7 +21,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Install system dependencies and Miniforge (mamba).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      wget bzip2 ca-certificates && \
+      wget bzip2 ca-certificates software-properties-common && \
     rm -rf /var/lib/apt/lists/* && \
     wget -qO /tmp/miniforge.sh \
       "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh" && \
