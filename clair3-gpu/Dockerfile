@@ -64,8 +64,8 @@ ENV PATH=${CONDA_PREFIX}/bin:/opt/bin:/opt/conda/bin:${PATH}
 # Step 2 & Step 4 in README: install uv, PyTorch (CUDA 12.1), and Python dependencies.
 RUN pip install --no-cache-dir uv && \
     uv pip install --python ${CONDA_PREFIX}/bin/python \
-      torch torchvision \
-      --index-url https://download.pytorch.org/whl/cu116 && \
+      torch==1.13.1+cu116 torchvision==0.14.1+cu116 \
+      --default-index https://download.pytorch.org/whl/cu116 && \
     uv pip install --python ${CONDA_PREFIX}/bin/python \
       numpy \
       h5py \
