@@ -4,33 +4,43 @@
 # the runtime image. Safe to run repeatedly (envs-full runs it after envs-core
 # already has).
 #
-# Note on hardlinks: conda hardlinks package files from the pkgs cache into
-# each environment, so identical packages across the ~dozen rule envs occupy
-# disk once. The pkgs cache here is a BuildKit cache mount and never enters a
-# layer, and dropping it does not duplicate anything -- it only decrements link
-# counts. This is why `conda clean` is cheap and why the tree must be moved in
-# a single COPY instruction downstream.
+# Two things this script must not do, both learned the hard way:
+#
+#   * Never use -follow. Conda environments are dense with symlinks, so the same
+#     physical directory is reachable by several paths: rm removes it via one
+#     and find then errors on it via another. Worse, following a symlink out of
+#     the tree would put rm -rf somewhere it has no business being.
+#
+#   * Never combine -prune with batched -exec rm -rf {} +. find is still walking
+#     while rm deletes, so it queues a path, the parent disappears, and the stat
+#     fails with "No such file or directory" -- which under set -e kills the
+#     build. -depth processes contents before the containing directory and
+#     avoids the race entirely.
+#
+# Note on hardlinks: conda hardlinks package files from the pkgs cache into each
+# environment, so identical packages across the rule envs occupy disk once. The
+# pkgs cache is a BuildKit cache mount and never enters a layer; dropping it
+# only decrements link counts. This is why the tree must be moved downstream in
+# a single COPY instruction.
 set -euo pipefail
 
 root="${1:?usage: prune-envs.sh <root>}"
 
 conda clean --all --yes || true
 
-# Static archives and build-time artefacts: never needed to run anything.
-find "$root" -follow -type f -name '*.a' -delete
-find "$root" -follow -type f -name '*.pyc' -delete
-find "$root" -follow -type f -name '*.js.map' -delete
-find "$root" -follow -type d -name '__pycache__' -prune -exec rm -rf {} +
-find "$root" -follow -type d -name 'tests' -prune -exec rm -rf {} +
+# Plain files: no traversal race, no need for -depth.
+find "$root" -type f \( -name '*.a' -o -name '*.pyc' -o -name '*.js.map' \
+                        -o -name '*.debug' \) -delete
 
-# Docs and locale data. Keep man pages out but leave share/ itself alone --
-# several bioconda tools keep real data files there.
-find "$root" -follow -type d \
+# Directories: -depth, no -prune, no -follow.
+find "$root" -depth -type d -name '__pycache__' -exec rm -rf {} +
+
+# Docs and man pages under share/. Kept narrow: several bioconda tools keep
+# real, load-bearing data files elsewhere in share/, so only these four names
+# are removed and only under a share/ directory.
+find "$root" -depth -type d -path '*/share/*' \
      \( -name man -o -name doc -o -name gtk-doc -o -name info \) \
-     -path '*/share/*' -prune -exec rm -rf {} +
+     -exec rm -rf {} +
 
-# Debug symbols, if any survived.
-find "$root" -follow -type f -name '*.debug' -delete
-
-# Apptainer runs as the invoking UID, which will not be root or 1000.
+# Apptainer runs as the invoking UID, which is neither root nor the image's.
 chmod -R a+rX "$root"

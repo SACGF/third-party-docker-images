@@ -48,7 +48,29 @@ RUN --mount=type=cache,target=/opt/pkgs,sharing=locked \
       "caddsv=${CADDSV_VERSION}" \
       conda
 
-ENV PATH=/opt/caddsv/env/bin:$PATH
+ENV PATH=/opt/caddsv/env/bin:$PATH \
+    CONDARC=/opt/caddsv/condarc
+
+# Configure the conda that SNAKEMAKE shells out to. The --channel-priority flag
+# on the micromamba create above only governs the runtime env; without this file
+# every per-rule environment is solved with flexible priority, which is what
+# lets a solver mix incompatible conda-forge and bioconda builds. Snakemake
+# warns about exactly this.
+#
+# CONDARC is used rather than ~/.condarc because nothing in this image may
+# depend on $HOME -- see the runtime stage.
+#
+# nodefaults excludes Anaconda's "defaults" channel, which carries commercial
+# licensing terms bioconda deliberately avoids.
+RUN printf '%s\n' \
+      'channel_priority: strict' \
+      'channels:' \
+      '  - conda-forge' \
+      '  - bioconda' \
+      '  - nodefaults' \
+      'always_yes: true' \
+      'notify_outdated_conda: false' \
+    > /opt/caddsv/condarc
 
 COPY prune-envs.sh /usr/local/bin/prune-envs.sh
 RUN chmod +x /usr/local/bin/prune-envs.sh
@@ -130,6 +152,7 @@ RUN mkdir -p /var/cache/caddsv/conda /var/cache/caddsv/xdg /annotations /data \
 ENV PATH=/opt/caddsv/env/bin:$PATH \
     CADD_SV_CONDA_PREFIX=/opt/caddsv/conda-envs \
     SNAKEMAKE_CONDA_PREFIX=/opt/caddsv/conda-envs \
+    CONDARC=/opt/caddsv/condarc \
     CONDA_ENVS_DIRS=/var/cache/caddsv/conda/envs \
     CONDA_PKGS_DIRS=/var/cache/caddsv/conda/pkgs \
     XDG_CACHE_HOME=/var/cache/caddsv/xdg \
