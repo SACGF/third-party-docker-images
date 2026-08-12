@@ -84,6 +84,7 @@ jobs:
           echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
           echo "REGISTRY=${REGISTRY:-ghcr.io}" >> $GITHUB_ENV
           echo "IMAGE_TAG=${IMAGE_TAG}" >> $GITHUB_ENV
+          echo "BUILD_TARGET=${BUILD_TARGET:-}" >> $GITHUB_ENV
 
       - name: Docker metadata
         id: meta
@@ -109,6 +110,7 @@ jobs:
         with:
           context: ${{ matrix.tool }}
           file: ${{ matrix.tool }}/Dockerfile
+          target: ${{ env.BUILD_TARGET }}
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: |
