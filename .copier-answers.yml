@@ -1,0 +1,8 @@
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
+_commit: v0.2.0
+_src_path: gh:awgymer/slopbox
+container_name: claude
+devcontainer_root: .devcontainer
+enable_firewall: true
+extra_tools: []
+installed_tools: []

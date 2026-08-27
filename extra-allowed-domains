@@ -1,0 +1,6 @@
+# Extra domains to allow through the egress firewall
+# One domain per line. Lines starting with # are ignored, as are blank lines.
+
+# Your custom domains:
+#
+# api.mycompany.com
