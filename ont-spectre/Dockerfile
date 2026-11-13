@@ -7,7 +7,7 @@ RUN apt-get update && apt-get -y install \
     rm -rf /var/lib/apt/lists/*
 
 
-ARG REPO_TAG=380a069543e194017640637492028fe8ad355ac8
+ARG REPO_TAG=72bdc950c3da01580d46b7df8ad9b81b38d43ced
 
 # setuptools < 82 required for pkg_resources
 RUN pip install "setuptools<82"
