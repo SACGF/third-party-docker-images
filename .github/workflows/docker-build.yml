@@ -8,6 +8,7 @@ on:
 permissions:
   contents: read
   packages: write
+  security-events: write
 
 jobs:
   detect-changes:
@@ -111,9 +112,28 @@ jobs:
           context: ${{ matrix.tool }}
           file: ${{ matrix.tool }}/Dockerfile
           target: ${{ env.BUILD_TARGET }}
+          load: true
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}/${{ matrix.tool }}
             org.opencontainers.image.url=${{ github.server_url }}/${{ github.repository }}/${{ matrix.tool }}
             org.opencontainers.image.documentation=${{ github.server_url }}/${{ github.repository }}/${{ matrix.tool }}
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_DISABLE_TELEMETRY: true
+          TRIVY_SKIP_VERSION_CHECK: true
+        with:
+          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          version: v0.76.2
+          format: sarif
+          output: trivy-results.sarif
+          ignore-unfixed: true
+
+      - name: Upload scan results
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-${{ matrix.tool }}
