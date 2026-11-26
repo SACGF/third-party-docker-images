@@ -56,7 +56,4 @@ COPY --from=build /usr/local/bin/ /usr/local/bin/
 COPY --from=build /usr/local/lib/libhts.so* /usr/local/lib/
 COPY --from=build /usr/local/share/baldur/ /usr/local/share/baldur/
 
-RUN ldconfig && \
-    baldur --version && \
-    bgzip --version && \
-    samtools --version
+RUN ldconfig
