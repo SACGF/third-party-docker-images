@@ -1,4 +1,4 @@
-ARG HTSLIB_VERSION=1.21
+ARG HTSLIB_VERSION=1.25
 
 FROM rust:1.88.0-bookworm AS build
 
